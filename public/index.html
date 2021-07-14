@@ -53,6 +53,7 @@
 
     ws.onopen = function(evt) {
         console.log("OPEN");
+        ws.send("user"); //tell server this connection is a user
     }
     ws.onclose = function(evt) {
         console.log("CLOSE");

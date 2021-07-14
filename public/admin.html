@@ -1,0 +1,87 @@
+<html>
+<body style="margin: 0; padding: 0;">
+<style>
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button1:hover {
+  background-color: #045E03; /*dark green*/
+  color: white;
+}
+.button1 {background-color: #4CAF50;} /* Green */
+
+.button2:hover {
+  background-color: #63072C; /*dark maroon*/
+  color: white;
+}
+.button2 {background-color: #FF0066;} /* Redish */
+</style>
+
+<button class="button button1" onclick="start(); style.display = 'none'">Start Game!</button>
+<!-- <button class="button button2" disabled=true onclick="submit();">Cancel Start!</button>
+-->
+
+<canvas id="admin" style="margin: 0; padding: 0;border-style: outset; border-color: black; border-width: 10px"></canvas>
+
+  <slider></slider>
+
+<script>
+  document.body.scrollTop = 0; // <-- pull the page to the top
+  document.body.style.overflow = 'hidden'; // <-- To hide scrollbar
+
+  const drawCanvas = document.getElementById("admin");
+  const ctx = drawCanvas.getContext("2d");
+  drawCanvas.width = window.innerWidth * 0.99;
+  drawCanvas.height = window.innerHeight * 0.90;  //90%
+
+  var ws;
+  window.addEventListener("load", function(evt) {
+    ws = new WebSocket("ws://localhost:80/echo");  //address to connect to, /echo triggers go echo function
+
+    ws.onopen = function(evt) {
+        console.log("OPEN");
+        ws.send("admin"); //tell server this connection is the admin
+    }
+    ws.onclose = function(evt) {
+        console.log("CLOSE");
+        ws = null;
+    }
+    ws.onmessage = function(evt) {
+        //Expecting messages to be canvas ImageData
+        //ctx.putImageData(JSON.parse(evt.data), 0, 0, drawCanvas.width, drawCanvas.height);
+    }
+    ws.onerror = function(evt) {
+        console.log("ERROR: " + evt.data);
+    }
+  })
+
+  function start(){
+    // Resize canvas after start button disappears
+    drawCanvas.width = window.innerWidth * 0.99;
+    drawCanvas.height = window.innerHeight * 0.98;
+    //Send Start to server, then bounces to players
+    ws.send("Start");
+  }
+
+
+  window.addEventListener("resize", function(){
+    drawCanvas.width = window.innerWidth * 0.99;
+    drawCanvas.height = window.innerHeight * 0.98;
+    console.log("hi")
+  })
+
+  window.addEventListener("contextmenu", function(e){
+    e.preventDefault();   //stops right click bringing up a menu
+  });
+</script>
+</body>
+</html>
