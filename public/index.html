@@ -76,6 +76,7 @@
   function draw(mX, mY, x, y){
     //ctx.fillStyle = document.getElementById("colorpicker").value;
     ctx.lineWidth = document.getElementById("size").value;
+    ctx.lineCap = "round";
     ctx.strokeStyle = document.getElementById("colorpicker").value
     ctx.beginPath();
     ctx.moveTo(x-mX, y-mY);  //goes to previous spot (end x - movementX in mousemove event)
