@@ -5,8 +5,9 @@ import (
 	//"html/template"
 	"log"
 	"net/http"
+	"encoding/json"
 	//"fmt"
-//	"sync"
+  //"sync"
 	//"time"
 	//"strings"
 
@@ -17,7 +18,8 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-var users map[*websocket.Conn]int = make(map[*websocket.Conn]int)
+// users stores Conn and username
+var users map[*websocket.Conn]string = make(map[*websocket.Conn]string)
 var admin *websocket.Conn
 
 func echo(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +37,11 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if string(message) == "user" {
-		users[c] = 1 //Add this connection to the list of users
+		if admin == nil {
+			c.WriteMessage(1, []byte("Wait For Host To Connect First Then Reload This Page."))
+			return
+		}
+		users[c] = "" //Add this connection to the list of users with a defualt blank username
 		log.Println("user in")
 	} else if string(message) == "admin" {
 		admin = c
@@ -44,6 +50,9 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		log.Println("Connection from non player")
 		return
 	}
+
+	// ReadLoop
+	messageMap := make(map[string]string)
 
 	for {
 		_, message, err := c.ReadMessage() //ReadMessage blocks until SDP message received
@@ -57,8 +66,18 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-    log.Println(string(message))
+		err = json.Unmarshal(message, &messageMap)
+		if err != nil {
+			log.Println("errorUnmarshal:", err)
+		}
 
+		if val, ok := messageMap["username"]; ok {
+			users[c] = val
+			// 2 is binary message
+			admin.WriteMessage(2, message) //send admin usernames (won't ever lose names cause admin connects first to the server)
+		}
+
+    log.Println(string(message))
 	}
 }
 
@@ -70,5 +89,4 @@ func main() {
 
 
 	log.Fatal(http.ListenAndServe(":80", nil))
-
 }

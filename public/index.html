@@ -60,6 +60,10 @@
         ws = null;
     }
     ws.onmessage = function(evt) {
+      if(evt.data == "Wait For Host To Connect First Then Reload This Page."){
+        document.write("Wait For Host To Connect First Then Reload This Page.");
+        ws.close();
+      }
         //Expecting messages to be canvas ImageData
         //ctx.putImageData(JSON.parse(evt.data), 0, 0, drawCanvas.width, drawCanvas.height);
     }
