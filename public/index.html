@@ -1,0 +1,141 @@
+<html>
+<body style="margin: 0; padding: 0;">
+<style>
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.button1:hover {
+  background-color: #045E03; /*dark green*/
+  color: white;
+}
+
+.button1 {background-color: #4CAF50;} /* Green */
+</style>
+
+<button class="button button1" onclick="submit()">Subit Drawing!</button>
+
+  <label for="colorpicker">Color Picker:</label>
+  <input type="color" id="colorpicker" value="#0000ff">
+
+  <input type="range" min="1" max="100" value="10" class="slider" id="size">
+
+  <canvas id="timer"></canvas>
+  <canvas id="draw" style="margin: 0; padding: 0;border-style: outset; border-color: aqua; border-width: 10px"></canvas>
+
+  <slider></slider>
+
+<script>
+  document.body.scrollTop = 0; // <-- pull the page to the top
+  document.body.style.overflow = 'hidden'; // <-- To hide scrollbar
+
+  const drawCanvas = document.getElementById("draw");
+  const ctx = drawCanvas.getContext("2d");
+  drawCanvas.width = window.innerWidth * 0.99;
+  drawCanvas.height = window.innerHeight * 0.80;  //90%
+
+  const timerCanvas = document.getElementById("timer");
+  const ctxTimere = timerCanvas.getContext("2d");
+  timerCanvas.width = window.innerWidth;
+  timerCanvas.height = window.innerHeight * 0.10;  //10%
+
+  var ws;
+  window.addEventListener("load", function(evt) {
+    ws = new WebSocket("ws://192.168.1.71:80/echo");  //address to connect to, /echo triggers go echo function
+
+    ws.onopen = function(evt) {
+        console.log("OPEN");
+    }
+    ws.onclose = function(evt) {
+        console.log("CLOSE");
+        ws = null;
+    }
+    ws.onmessage = function(evt) {
+        //Expecting messages to be canvas ImageData
+        //ctx.putImageData(JSON.parse(evt.data), 0, 0, drawCanvas.width, drawCanvas.height);
+    }
+    ws.onerror = function(evt) {
+        console.log("ERROR: " + evt.data);
+    }
+  })
+
+
+  function submit(){
+    //send drawing to server
+    //ws.send(JSON.stringify(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
+  }
+
+  function draw(mX, mY, x, y){
+    //ctx.fillStyle = document.getElementById("colorpicker").value;
+    ctx.lineWidth = document.getElementById("size").value;
+    ctx.strokeStyle = document.getElementById("colorpicker").value
+    ctx.beginPath();
+    ctx.moveTo(x-mX, y-mY);  //goes to previous spot (end x - movementX in mousemove event)
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }
+
+  var drawing = false;
+  // Mouse Controls
+  drawCanvas.addEventListener("mousedown", function(e){
+    drawing = true;
+  })
+  drawCanvas.addEventListener("mousemove", function(e){
+    if(drawing){
+      draw(e.movementX, e.movementY, e.offsetX, e.offsetY);
+    }
+  })
+  drawCanvas.addEventListener("mouseup", function(e){
+    drawing = false;
+  })
+
+  // Touch Controls
+  // e.preventDefault() prevents tpuches simulating click events
+  var lastMoveX;
+  var lastMoveY;
+  var bRect = drawCanvas.getBoundingClientRect();
+  drawCanvas.addEventListener("touchstart", function(e){
+    e.preventDefault()
+    for(var i = 0; i < e.changedTouches.length; i++){
+      lastMoveX = e.changedTouches[i].clientX-bRect.x;
+      lastMoveY = e.changedTouches[i].clientY-bRect.y;
+    }
+    drawing = true;
+  })
+
+  drawCanvas.addEventListener("touchmove", function(e){
+    e.preventDefault()
+    if(drawing){
+      for(var i = 0; i < e.changedTouches.length; i++){
+        draw(e.changedTouches[i].clientX-bRect.x-lastMoveX, e.changedTouches[i].clientY-bRect.y-lastMoveY, e.changedTouches[i].clientX-bRect.x, e.changedTouches[i].clientY-bRect.y);
+        lastMoveX = e.changedTouches[i].clientX-bRect.x;
+        lastMoveY = e.changedTouches[i].clientY-bRect.y;
+      }
+    }
+  })
+  drawCanvas.addEventListener("touchend", function(e){
+    e.preventDefault()
+    drawing = false;
+  })
+
+  window.addEventListener("resize", function(){
+    drawCanvas.width = window.innerWidth;
+    drawCanvas.height = window.innerHeight * 0.90;
+    timerCanvas.width = window.innerWidth;
+    timerCanvas.height = window.innerHeight * 0.10;
+  })
+
+  window.addEventListener("contextmenu", function(e){
+    e.preventDefault();   //stops right click bringing up a menu
+  });
+</script>
+</body>
+</html>
