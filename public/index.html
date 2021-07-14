@@ -21,17 +21,21 @@
 .button1 {background-color: #4CAF50;} /* Green */
 </style>
 
-<button class="button button1" onclick="submit()">Subit Drawing!</button>
+  <button class="button button1" onclick="submit()">Subit Drawing!</button>
 
   <label for="colorpicker">Color Picker:</label>
   <input type="color" id="colorpicker" value="#0000ff">
 
   <input type="range" min="1" max="100" value="10" class="slider" id="size">
 
+  <input type="text" id="username"></input>
+  <button class="button button1" onclick="username()">Subit Username!</button>
+
   <canvas id="timer"></canvas>
   <canvas id="draw" style="margin: 0; padding: 0;border-style: outset; border-color: aqua; border-width: 10px"></canvas>
 
-  <slider></slider>
+
+
 
 <script>
   document.body.scrollTop = 0; // <-- pull the page to the top
@@ -76,6 +80,10 @@
   function submit(){
     //send drawing to server
     //ws.send(JSON.stringify(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
+  }
+
+  function username(){
+    ws.send(JSON.stringify({username: document.getElementById("username").value}));
   }
 
   function draw(mX, mY, x, y){

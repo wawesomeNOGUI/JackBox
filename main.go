@@ -62,6 +62,14 @@ func echo(w http.ResponseWriter, r *http.Request) {
 				admin = nil
 			} else {
 				delete(users, c)
+				disconnectMessage := make(map[string]string)
+				disconnectMessage["disconnect"] = c.RemoteAddr().String()
+				temp, err := json.Marshal(disconnectMessage)
+				if err != nil {
+					log.Println(err)
+				}
+				//Tell admin which user disconnected
+				admin.WriteMessage(1, temp)
 			}
 			break
 		}
@@ -73,8 +81,14 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
 		if val, ok := messageMap["username"]; ok {
 			users[c] = val
-			// 2 is binary message
-			admin.WriteMessage(2, message) //send admin usernames (won't ever lose names cause admin connects first to the server)
+			//Add address to message
+			messageMap["addr"] = c.RemoteAddr().String()
+			message, err = json.Marshal(messageMap)
+			if err != nil {
+				log.Println(err)
+			}
+			// 2 is binary message, 1 is text message
+			admin.WriteMessage(1, message) //send admin usernames (won't ever lose names cause admin connects first to the server)
 		}
 
     log.Println(string(message))
