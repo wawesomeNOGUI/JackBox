@@ -75,9 +75,10 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if string(message) == "Start" {
-			for k, v := range users {
-				k.WriteMessage(1, "Start")
+			for k, _ := range users {
+				k.WriteMessage(1, []byte("Start"))
 			}
+			continue
 		}
 
 		err = json.Unmarshal(message, &messageMap)

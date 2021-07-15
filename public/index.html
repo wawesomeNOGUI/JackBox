@@ -47,9 +47,15 @@
   drawCanvas.height = window.innerHeight * 0.80;  //90%
 
   const timerCanvas = document.getElementById("timer");
-  const ctxTimere = timerCanvas.getContext("2d");
+  const ctxTimer = timerCanvas.getContext("2d");
   timerCanvas.width = window.innerWidth;
   timerCanvas.height = window.innerHeight * 0.10;  //10%
+
+  var canDraw = false;
+
+  var timer;
+  var timeMinute = 1;
+  var timeSec = 45;
 
   var ws;
   window.addEventListener("load", function(evt) {
@@ -65,7 +71,7 @@
     }
     ws.onmessage = function(evt) {
       if(evt.data == "Start"){
-        
+        startDrawing();
       }else if(evt.data == "Wait For Host To Connect First Then Reload This Page."){
         document.write("Wait For Host To Connect First Then Reload This Page.");
         ws.close();
@@ -79,9 +85,21 @@
   })
 
 
+
   function submit(){
     //send drawing to server
     //ws.send(JSON.stringify(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
+  }
+
+  function startDrawing(){
+    canDraw = true;
+    timer = setInterval(timer, 1000);
+  }
+
+  function timer(){
+    ctx.fillStyle = "#00FF00";
+    ctx.font = "30px bold Arial";
+    ctxTimer.fillText(timeMinute + ":" + timeSec, timerCanvas.width/2, timerCanvas.height/2)
   }
 
   function username(){
@@ -89,14 +107,16 @@
   }
 
   function draw(mX, mY, x, y){
-    //ctx.fillStyle = document.getElementById("colorpicker").value;
-    ctx.lineWidth = document.getElementById("size").value;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = document.getElementById("colorpicker").value
-    ctx.beginPath();
-    ctx.moveTo(x-mX, y-mY);  //goes to previous spot (end x - movementX in mousemove event)
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    if(canDraw){
+      //ctx.fillStyle = document.getElementById("colorpicker").value;
+      ctx.lineWidth = document.getElementById("size").value;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = document.getElementById("colorpicker").value
+      ctx.beginPath();
+      ctx.moveTo(x-mX, y-mY);  //goes to previous spot (end x - movementX in mousemove event)
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
   }
 
   var drawing = false;
