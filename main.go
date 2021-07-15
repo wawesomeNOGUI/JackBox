@@ -22,6 +22,11 @@ var upgrader = websocket.Upgrader{
 var users map[*websocket.Conn]string = make(map[*websocket.Conn]string)
 var admin *websocket.Conn
 
+//All the T-Shirt Drawings
+var tshirts map[*websocket.Conn][]byte = make(map[*websocket.Conn][]byte)
+//All The Snappy T-Shirt Text
+var snappyText map[*websocket.Conn][]byte = make(map[*websocket.Conn][]byte)
+
 func echo(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -79,11 +84,16 @@ func echo(w http.ResponseWriter, r *http.Request) {
 				k.WriteMessage(1, []byte("Start"))
 			}
 			continue
+		}else if message[0] != byte('{') {  //If not json then must be Snappy Text
+			snappyText[c] = message           //single quotes to treat as rune == single char??
 		}
 
 		err = json.Unmarshal(message, &messageMap)
 		if err != nil {
 			log.Println("errorUnmarshal:", err)
+			//Message Must Be T-Shirt Design Cause it's values don't map to map[string]string
+			 tshirts[c] = message  //Just let the browsers JSON.parse the message
+			 //log.Println(string(message))
 		}
 
 		if val, ok := messageMap["username"]; ok {
@@ -98,7 +108,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			admin.WriteMessage(1, message) //send admin usernames (won't ever lose names cause admin connects first to the server)
 		}
 
-    log.Println(string(message))
+    //log.Println(string(message))
 	}
 }
 

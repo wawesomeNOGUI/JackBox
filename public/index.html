@@ -88,7 +88,7 @@
 
   function submit(){
     //send drawing to server
-    //ws.send(JSON.stringify(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
+    ws.send(JSON.stringify(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height)));
   }
 
   function startDrawing(){
@@ -107,6 +107,7 @@
       timeMinute--;
       timeSec = 60;
     }else if(timeMinute == 0 && timeSec == -1){
+      submit();
       clearInterval(timer);
     }
   }
