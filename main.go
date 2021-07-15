@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
-	//"fmt"
+	//"math/rand"
   //"sync"
 	//"time"
 	//"strings"
@@ -26,6 +26,8 @@ var admin *websocket.Conn
 var tshirts map[*websocket.Conn][]byte = make(map[*websocket.Conn][]byte)
 //All The Snappy T-Shirt Text
 var snappyText map[*websocket.Conn][]byte = make(map[*websocket.Conn][]byte)
+//Map of Matching Text to T-Shirt
+//var match map[[]byte][]byte = make(map[[]byte][]byte)
 
 func echo(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
@@ -94,6 +96,13 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			//Message Must Be T-Shirt Design Cause it's values don't map to map[string]string
 			 tshirts[c] = message  //Just let the browsers JSON.parse the message
 			 //log.Println(string(message))
+			 if len(tshirts) == len(users) {
+				 admin.WriteMessage(1, []byte("textSection"))
+				 //Send Out T-Shirt Pics for users to make logos for
+				 for k, v := range tshirts {
+					 k.WriteMessage(1, v)
+				 }
+			 }
 		}
 
 		if val, ok := messageMap["username"]; ok {

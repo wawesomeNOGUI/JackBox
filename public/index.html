@@ -76,6 +76,12 @@
         document.write("Wait For Host To Connect First Then Reload This Page.");
         ws.close();
       }
+
+      //Else then it's another users T-Shirt pic beaming in
+      clearInterval(timerInt);
+      ctxTimer.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
+      ctx.putImageData(JSON.parse(evt.data), 0, 0, drawCanvas.width, drawCanvas.height);
+
         //Expecting messages to be canvas ImageData
         //ctx.putImageData(JSON.parse(evt.data), 0, 0, drawCanvas.width, drawCanvas.height);
     }
