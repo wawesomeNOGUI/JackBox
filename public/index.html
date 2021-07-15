@@ -53,7 +53,7 @@
 
   var canDraw = false;
 
-  var timer;  //stores the setInterval globaly
+  var timerInt;  //stores the setInterval globaly
   var timeMinute = 1;
   var timeSec = 59;
 
@@ -93,7 +93,7 @@
 
   function startDrawing(){
     canDraw = true;
-    timer = setInterval(timer, 1000);
+    timerInt = setInterval(timer, 1000);
   }
 
   function timer(){
@@ -108,7 +108,7 @@
       timeSec = 60;
     }else if(timeMinute == 0 && timeSec == -1){
       submit();
-      clearInterval(timer);
+      clearInterval(timerInt);
     }
   }
 
