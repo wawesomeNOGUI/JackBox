@@ -53,7 +53,7 @@
 
   var canDraw = false;
 
-  var timer;
+  var timer;  //stores the setInterval globaly
   var timeMinute = 1;
   var timeSec = 45;
 
@@ -97,9 +97,18 @@
   }
 
   function timer(){
-    ctx.fillStyle = "#00FF00";
-    ctx.font = "30px bold Arial";
-    ctxTimer.fillText(timeMinute + ":" + timeSec, timerCanvas.width/2, timerCanvas.height/2)
+    ctxTimer.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
+    ctxTimer.fillStyle = "#015B0B";  //dark green
+    ctxTimer.font = "bold 30px Arial";
+    ctxTimer.fillText(timeMinute + ":" + timeSec, timerCanvas.width/2, timerCanvas.height/2);
+
+    timeSec --;
+    if(timeSec == 0 && timeMinute > 0){
+      timeMinute--;
+      timeSec = 60;
+    }else if(timeMinute == 0 && timeSec == -1){
+      clearInterval(timer);
+    }
   }
 
   function username(){
