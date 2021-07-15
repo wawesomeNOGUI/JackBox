@@ -64,7 +64,9 @@
         ws = null;
     }
     ws.onmessage = function(evt) {
-      if(evt.data == "Wait For Host To Connect First Then Reload This Page."){
+      if(evt.data == "Start"){
+        
+      }else if(evt.data == "Wait For Host To Connect First Then Reload This Page."){
         document.write("Wait For Host To Connect First Then Reload This Page.");
         ws.close();
       }
