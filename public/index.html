@@ -57,6 +57,9 @@
   var timeMinute = 1;
   var timeSec = 59;
 
+  //For other T-Shirt you get in the mail
+  var img = new Image();
+
   var ws;
   window.addEventListener("load", function(evt) {
     ws = new WebSocket("ws://localhost:80/echo");  //address to connect to, /echo triggers go echo function
@@ -75,15 +78,15 @@
       }else if(evt.data == "Wait For Host To Connect First Then Reload This Page."){
         document.write("Wait For Host To Connect First Then Reload This Page.");
         ws.close();
+      }else{
+        //Else then it's another users T-Shirt pic beaming in
+        clearInterval(timerInt);
+        ctxTimer.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
+        img.src = evt.data;
+        console.log(evt.data)
+        timerInt = setInterval(sloganTime, 1000);
+        canDraw = false;
       }
-
-      //Else then it's another users T-Shirt pic beaming in
-      clearInterval(timerInt);
-      ctxTimer.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
-      ctx.putImageData(JSON.parse(evt.data), 0, 0, drawCanvas.width, drawCanvas.height);
-
-        //Expecting messages to be canvas ImageData
-        //ctx.putImageData(JSON.parse(evt.data), 0, 0, drawCanvas.width, drawCanvas.height);
     }
     ws.onerror = function(evt) {
         console.log("ERROR: " + evt.data);
@@ -94,7 +97,8 @@
 
   function submit(){
     //send drawing to server
-    ws.send(JSON.stringify(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height)));
+    //ws.send(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
+    ws.send(drawCanvas.toDataURL()); //Send Canvas drawing as PNG
   }
 
   function startDrawing(){
@@ -116,6 +120,10 @@
       submit();
       clearInterval(timerInt);
     }
+  }
+
+  function sloganTime(){
+    ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
   }
 
   function username(){
