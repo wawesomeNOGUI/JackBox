@@ -88,7 +88,8 @@
         ctxTimer.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
         img.src = evt.data;
         img.onload = function(){
-          timerInt = setInterval(sloganTime, 500);
+          //timerInt = setInterval(sloganTime, 100);
+          requestAnimationFrame(sloganTime);
         }
         //console.log(evt.data)
         //ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
@@ -133,8 +134,9 @@
   function sloganTime(){
     ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
-    ctx.fillStyle = "red";
-    ctx.fillRect(50, 50, 100, 100);
+    requestAnimationFrame(sloganTime);
+    //ctx.fillStyle = "red";
+    //sctx.fillRect(50, 50, 100, 100);
   }
 
   function username(){
