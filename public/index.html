@@ -1,5 +1,8 @@
 <html>
 <body style="margin: 0; padding: 0;">
+  <!--
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  -->
 <style>
 .button {
   border: none;
@@ -62,7 +65,7 @@
 
   var ws;
   window.addEventListener("load", function(evt) {
-    ws = new WebSocket("ws://localhost:80/echo");  //address to connect to, /echo triggers go echo function
+    ws = new WebSocket("ws://192.168.1.71:80/echo");  //address to connect to, /echo triggers go echo function
 
     ws.onopen = function(evt) {
         console.log("OPEN");
@@ -81,11 +84,16 @@
       }else{
         //Else then it's another users T-Shirt pic beaming in
         clearInterval(timerInt);
+        canDraw = false;
         ctxTimer.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
         img.src = evt.data;
-        console.log(evt.data)
-        timerInt = setInterval(sloganTime, 1000);
-        canDraw = false;
+        img.onload = function(){
+          timerInt = setInterval(sloganTime, 500);
+        }
+        //console.log(evt.data)
+        //ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
+
+
       }
     }
     ws.onerror = function(evt) {
@@ -123,7 +131,10 @@
   }
 
   function sloganTime(){
+    ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
+    ctx.fillStyle = "red";
+    ctx.fillRect(50, 50, 100, 100);
   }
 
   function username(){

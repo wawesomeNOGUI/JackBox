@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
-	//"math/rand"
+	"math/rand"
   //"sync"
-	//"time"
+	"time"
 	//"strings"
 
 	"github.com/gorilla/websocket"
@@ -95,13 +95,33 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			log.Println("errorUnmarshal:", err)
 			//Message Must Be T-Shirt Design Cause it's values don't map to map[string]string
 			 tshirts[c] = message  //Just let the browsers JSON.parse the message
+
 			 //log.Println(string(message))
 			 if len(tshirts) == len(users) {
 				 admin.WriteMessage(1, []byte("textSection"))
 				 //Send Out T-Shirt Pics for users to make logos for
-				 for k, v := range tshirts {
-					 k.WriteMessage(1, v)
+				 var tempSlice []*websocket.Conn
+				 r1 := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+				 //Fill slice with users
+				 for conn, _ := range users {
+					 tempSlice = append(tempSlice, conn)
 				 }
+
+				 //Give each users a random shirt to make a slogan for
+				 for k, _ := range tshirts {
+					 x := r1.Intn(len(tempSlice))
+					 for {
+						 //Don't send this users shirt back to themselves
+						 if tempSlice[x] != k {
+							 break
+						 }
+						 x = r1.Intn(len(tempSlice))
+					 }
+
+					 k.WriteMessage(1, tshirts[tempSlice[x]])
+				 }
+
 			 }
 		}
 
