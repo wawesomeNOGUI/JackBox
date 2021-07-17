@@ -60,6 +60,8 @@
   var timeMinute = 1;
   var timeSec = 59;
 
+  var sloganAnimate = requestAnimationFrame(sloganTime);
+
   //For other T-Shirt you get in the mail
   var img = new Image();
 
@@ -134,7 +136,7 @@
   function sloganTime(){
     ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
-    requestAnimationFrame(sloganTime);
+    sloganAnimate;
     //ctx.fillStyle = "red";
     //sctx.fillRect(50, 50, 100, 100);
   }
