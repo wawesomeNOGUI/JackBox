@@ -30,8 +30,8 @@ var admin *websocket.Conn
 var tshirts map[*websocket.Conn][]byte = make(map[*websocket.Conn][]byte)
 //All The Snappy T-Shirt Text
 var snappyText map[*websocket.Conn][]byte = make(map[*websocket.Conn][]byte)
-//Map of Matching Text to T-Shirt
-//var match map[[]byte][]byte = make(map[[]byte][]byte)
+//Map of Matching T-Shirt to Text (The peeps Conns who made text or shirt)
+var match map[*websocket.Conn]*websocket.Conn = make(map[*websocket.Conn]*websocket.Conn)
 
 func echo(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
@@ -127,9 +127,11 @@ func echo(w http.ResponseWriter, r *http.Request) {
 						 }
 						 x = r1.Intn(len(tempSlice))
 					 }
+					 //Write to match for the pair of peeps who made T-Shirt and Text
+					 match[tempSlice[x]] = k
+					 //Send user T-Shirt
 					 k.WriteMessage(1, tshirts[tempSlice[x]])
 				 }
-
 			 }
 		}
 

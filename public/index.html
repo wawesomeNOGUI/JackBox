@@ -112,7 +112,7 @@
   function submit(){
     //send drawing to server
     //ws.send(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
-    ws.send(drawCanvas.toDataURL()); //Send Canvas drawing as PNG
+    ws.send(drawCanvas.toDataURL()); //Send Canvas drawing as Base64 PNG
   }
 
   function startDrawing(){
