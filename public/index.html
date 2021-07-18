@@ -114,6 +114,8 @@ inset 0 0 5px #000;
 
   var canDraw = false;
 
+  var textTime = false;
+
   var timerInt;  //stores the setInterval globaly
   var timeMinute = 1;
   var timeSec = 59;
@@ -155,9 +157,10 @@ inset 0 0 5px #000;
           requestAnimationFrame(sloganTime);
           //Shrink drawCanvas to make room for text box underneath
           //drawCanvas height will be 50% of screen
-          drawCanvas.height = drawCanvas.height/2;
+          drawCanvas.height = window.innerHeight/2;
           //Use below to scale imgage to have it's same width/height ratio
           drawCanvas.width = (img.width*drawCanvas.height) / img.height;
+          textTime = true;
         }
         //console.log(evt.data)
         //ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
@@ -268,8 +271,15 @@ inset 0 0 5px #000;
   })
 
   window.addEventListener("resize", function(){
-    drawCanvas.width = window.innerWidth;
-    drawCanvas.height = window.innerHeight * 0.90;
+    if(textTime){
+      drawCanvas.height = window.innerHeight/2;
+      //Use below to scale imgage to have it's same width/height ratio
+      drawCanvas.width = (img.width*drawCanvas.height) / img.height;
+    }else{
+      drawCanvas.width = window.innerWidth;
+      drawCanvas.height = window.innerHeight * 0.90;
+    }
+
     timerCanvas.width = window.innerWidth;
     timerCanvas.height = window.innerHeight * 0.10;
   })
