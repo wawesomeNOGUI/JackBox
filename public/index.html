@@ -24,7 +24,7 @@
 .button1 {background-color: #4CAF50;} /* Green */
 </style>
 
-  <button class="button button1" onclick="submit()">Subit Drawing!</button>
+  <button id="submitBtn" class="button button1" onclick="submit()">Subit Drawing!</button>
 
   <label for="colorpicker">Color Picker:</label>
   <input type="color" id="colorpicker" value="#0000ff">
@@ -32,7 +32,7 @@
   <input type="range" min="1" max="100" value="10" class="slider" id="size">
 
   <input type="text" id="username"></input>
-  <button class="button button1" onclick="username()">Subit Username!</button>
+  <button id="usernameBtn" class="button button1" onclick="username()">Subit Username!</button>
 
   <canvas id="timer"></canvas>
   <canvas id="draw" style="margin: 0; padding: 0;border-style: outset; border-color: aqua; border-width: 10px"></canvas>
@@ -60,7 +60,7 @@
   var timeMinute = 1;
   var timeSec = 59;
 
-  var sloganAnimate = requestAnimationFrame(sloganTime);
+  var sloganAnimate = function(){requestAnimationFrame(sloganTime);};
 
   //For other T-Shirt you get in the mail
   var img = new Image();
@@ -80,12 +80,15 @@
     ws.onmessage = function(evt) {
       if(evt.data == "Start"){
         startDrawing();
+        document.getElementById("usernameBtn").style.display = 'none'; //Username Button disappear
       }else if(evt.data == "Wait For Host To Connect First Then Reload This Page."){
         document.write("Wait For Host To Connect First Then Reload This Page.");
         ws.close();
       }else{
         //Else then it's another users T-Shirt pic beaming in
         clearInterval(timerInt);
+        document.getElementById("submitBtn").innerText = "Subit Text!";
+
         canDraw = false;
         ctxTimer.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
         img.src = evt.data;
@@ -136,7 +139,7 @@
   function sloganTime(){
     ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     ctx.drawImage(img, 0, 0, drawCanvas.width, drawCanvas.height);
-    sloganAnimate;
+    sloganAnimate();
     //ctx.fillStyle = "red";
     //sctx.fillRect(50, 50, 100, 100);
   }
