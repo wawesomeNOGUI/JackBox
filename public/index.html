@@ -91,9 +91,12 @@ inset 0 0 5px #000;
 
   <canvas id="timer"></canvas>
   <canvas id="draw" style="margin: 0; padding: 0;border-style: outset; border-color: aqua; border-width: 10px"></canvas>
-
-
-
+<!--
+  <div onclick="this.select()" contenteditable class="board">
+	<p>Click to edit me ⇦</p>
+  </div>
+-->
+<input onclick="this.setSelectionRange(0, this.value.length)" class="board" value="Enter Slogan Here!"></input>
 
 <script>
   document.body.scrollTop = 0; // <-- pull the page to the top
