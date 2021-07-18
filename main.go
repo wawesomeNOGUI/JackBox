@@ -7,12 +7,16 @@ import (
 	"net/http"
 	"encoding/json"
 	"math/rand"
-  //"sync"
+  "sync"
 	"time"
 	//"strings"
 
 	"github.com/gorilla/websocket"
 )
+
+var adminMutex sync.Mutex //To make sure no concurrent writes to the same Conn occur
+var tMutex sync.Mutex //T-Shirt Map Writes
+var sMutex sync.Mutex //SnappyText Map Writes
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
@@ -83,20 +87,25 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
 		if string(message) == "Start" {
 			for k, _ := range users {
+				//Doesn't need mutex because only admin can send "Start"
 				k.WriteMessage(1, []byte("Start"))
 			}
 			continue
 		}else if message[0] != byte('{') {  //If not json then must be Snappy Text
+			sMutex.Lock()
 			snappyText[c] = message           //single quotes to treat as rune == single char??
+			sMutex.Unlock()
 		}
 
 		err = json.Unmarshal(message, &messageMap)
 		if err != nil {
 			log.Println("errorUnmarshal:", err)
 			//Message Must Be T-Shirt Design Cause it's values don't map to map[string]string
+			 tMutex.Lock()
 			 tshirts[c] = message  //Just let the browsers JSON.parse the message
+			 tMutex.Unlock()
 
-			 //log.Println(string(message))
+			 //Doesn't need mutexes because only one GoRoutine will use this write section
 			 if len(tshirts) == len(users) {
 				 admin.WriteMessage(1, []byte("textSection"))
 				 //Send Out T-Shirt Pics for users to make logos for
@@ -118,7 +127,6 @@ func echo(w http.ResponseWriter, r *http.Request) {
 						 }
 						 x = r1.Intn(len(tempSlice))
 					 }
-
 					 k.WriteMessage(1, tshirts[tempSlice[x]])
 				 }
 
@@ -134,7 +142,9 @@ func echo(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 			}
 			// 2 is binary message, 1 is text message
+			adminMutex.Lock()
 			admin.WriteMessage(1, message) //send admin usernames (won't ever lose names cause admin connects first to the server)
+			adminMutex.Unlock()
 		}
 
     //log.Println(string(message))
