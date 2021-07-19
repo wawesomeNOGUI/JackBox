@@ -98,30 +98,44 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			log.Println(message)
 			snappyText[c] = message           //single quotes to treat as rune == single char??
 			sMutex.Unlock()
+			//Voting Time and Display
 			if len(snappyText) == len(users) {
-				admin.WriteMessage(1, "DisplayResults")
+				admin.WriteMessage(1, []byte("DisplayResults"))
 				//Marshall the stuff
 				//Matches
-				message, err := json.Marshal(match)
+				tempMap := make(map[string]string)
+				for k, v := range match {
+					tempMap[k.RemoteAddr().String()] = v.RemoteAddr().String()
+				}
+
+				message, err := json.Marshal(tempMap)
 				if err != nil {
 					log.Println(err)
 				}
 				admin.WriteMessage(1, message)
 
 				//Shirts
-				message, err = json.Marshal(tshirts)
+				tempShirtMap := make(map[string][]byte)
+				for k, v := range tshirts {
+					tempShirtMap[k.RemoteAddr().String()] = v
+				}
+
+				message, err = json.Marshal(tempShirtMap)
 				if err != nil {
 					log.Println(err)
 				}
 				admin.WriteMessage(1, message)
 
 				//Text
-				message, err = json.Marshal(snappyText)
+				tempTextMap := make(map[string][]byte)
+				for k, v := range snappyText {
+					tempTextMap[k.RemoteAddr().String()] = v
+				}
+				message, err = json.Marshal(tempTextMap)
 				if err != nil {
 					log.Println(err)
 				}
 				admin.WriteMessage(1, message)
-
 			}
 			continue
 		}
@@ -183,7 +197,6 @@ func echo(w http.ResponseWriter, r *http.Request) {
     //log.Println(string(message))
 	}
 }
-
 
 func main() {
 	fileServer := http.FileServer(http.Dir("./public"))
