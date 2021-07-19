@@ -33,6 +33,9 @@ var snappyText map[*websocket.Conn][]byte = make(map[*websocket.Conn][]byte)
 //Map of Matching T-Shirt to Text (The peeps Conns who made text or shirt)
 var match map[*websocket.Conn]*websocket.Conn = make(map[*websocket.Conn]*websocket.Conn)
 
+//Scores when people vote on shirts
+//var scores map[*websocket.Conn]int
+
 var textTime bool = false
 
 func echo(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +105,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			if len(snappyText) == len(users) {
 				admin.WriteMessage(1, []byte("DisplayResults"))
 				//Marshall the stuff
-				//Matches
+				//User Matches
 				tempMap := make(map[string]string)
 				for k, v := range match {
 					tempMap[k.RemoteAddr().String()] = v.RemoteAddr().String()
@@ -115,9 +118,9 @@ func echo(w http.ResponseWriter, r *http.Request) {
 				admin.WriteMessage(1, message)
 
 				//Shirts
-				tempShirtMap := make(map[string][]byte)
+				tempShirtMap := make(map[string]string)
 				for k, v := range tshirts {
-					tempShirtMap[k.RemoteAddr().String()] = v
+					tempShirtMap[k.RemoteAddr().String()] = string(v)
 				}
 
 				message, err = json.Marshal(tempShirtMap)
@@ -127,9 +130,9 @@ func echo(w http.ResponseWriter, r *http.Request) {
 				admin.WriteMessage(1, message)
 
 				//Text
-				tempTextMap := make(map[string][]byte)
+				tempTextMap := make(map[string]string)
 				for k, v := range snappyText {
-					tempTextMap[k.RemoteAddr().String()] = v
+					tempTextMap[k.RemoteAddr().String()] = string(v)
 				}
 				message, err = json.Marshal(tempTextMap)
 				if err != nil {
@@ -182,7 +185,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
 		if val, ok := messageMap["username"]; ok {
 			users[c] = val
-			//Add address to message
+			//Add address to message so admin can make an object matching addr to name
 			messageMap["addr"] = c.RemoteAddr().String()
 			message, err = json.Marshal(messageMap)
 			if err != nil {
