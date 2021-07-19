@@ -96,7 +96,7 @@ inset 0 0 5px #000;
 	<p>Click to edit me ⇦</p>
   </div>
 -->
-<textarea onclick="this.setSelectionRange(0, this.value.length)" class="board" value="" rows="14" cols="10" wrap="soft" maxlength="40">Enter Slogan Here!</textarea>
+<textarea id="sloganTextArea" onclick="this.setSelectionRange(0, this.value.length)" class="board" rows="14" cols="10" wrap="soft" maxlength="40">Enter Slogan Here!</textarea>
 
 <script>
   document.body.scrollTop = 0; // <-- pull the page to the top
@@ -178,7 +178,12 @@ inset 0 0 5px #000;
   function submit(){
     //send drawing to server
     //ws.send(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
-    ws.send(drawCanvas.toDataURL()); //Send Canvas drawing as Base64 PNG
+    if (!textTime){
+      ws.send(drawCanvas.toDataURL()); //Send Canvas drawing as Base64 PNG
+    }else{
+      ws.send(document.getElementById("sloganTextArea").value);
+      console.log(document.getElementById("sloganTextArea").value);
+    }
   }
 
   function startDrawing(){

@@ -44,6 +44,15 @@
   drawCanvas.height = window.innerHeight * 0.90;  //90%
 
   var started = false;
+  var votingTime = false;
+  var matches;
+  var shirts;
+  var text;
+
+  var counter = 0;
+  var displayCount = 0;
+  var interval;
+
   var users = {};
 
   var ws;
@@ -62,6 +71,27 @@
         console.log(evt.data);
         if(evt.data == "textSection"){
           textSection();
+          return;
+        }else if (evt.data == "DisplayResults") {
+          votingTime = true;
+          return;
+        }
+
+        //First comes mathes, then shirts, then text
+        if (votingTime == true) {
+          if (counter == 0){
+            matches = JSON.parse(evt.data);
+            counter++;
+          } else if (counter == 1) {
+            shirts = JSON.parse(evt.data);
+            counter++;
+          } else if (counter == 2) {
+            text = JSON.parse(evt.data);
+            counter++;
+            interval = setInterval(displayResults, 4000);
+          }
+
+          return;
         }
 
         var temp = JSON.parse(evt.data);
@@ -122,11 +152,34 @@
         ctx.font = "30px Arial";
         ctx.fillText(users[prop], 10, 50*i+50);
       }
+      requestAnimationFrame(loopy);
     }
-
-    requestAnimationFrame(loopy);
   }
   loopy();
+
+  function displayResults(){
+    ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.heigh);
+    var tempCount = 0;
+    for (var prop in matches) {
+      if(tempCount == displayCount){
+        ctx.fillStyle = "#FF00FF";
+        ctx.font = "30px Arial";
+        ctx.fillText(users[prop], 15, 50);
+        var img = new Image();
+        img.src = shirts[prop];
+        img.onload = function(){
+          ctx.drawImage(img, 0, 60, img.width/2, img.height/2);
+          ctx.fillText(users[matches[prop]], 15, img.height/2+50);
+          ctx.fillText(text[matches[prop]], 15 img.height/2+100);
+        }
+      }else if(tempCount > displayCount){
+        break;
+      }
+      tempCount++;
+    }
+
+    displayCount++;
+  }
 
 
   window.addEventListener("resize", function(){

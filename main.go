@@ -33,6 +33,8 @@ var snappyText map[*websocket.Conn][]byte = make(map[*websocket.Conn][]byte)
 //Map of Matching T-Shirt to Text (The peeps Conns who made text or shirt)
 var match map[*websocket.Conn]*websocket.Conn = make(map[*websocket.Conn]*websocket.Conn)
 
+var textTime bool = false
+
 func echo(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -91,10 +93,37 @@ func echo(w http.ResponseWriter, r *http.Request) {
 				k.WriteMessage(1, []byte("Start"))
 			}
 			continue
-		}else if message[0] != byte('{') {  //If not json then must be Snappy Text
+		}else if textTime {  //If not json then must be Snappy Text
 			sMutex.Lock()
+			log.Println(message)
 			snappyText[c] = message           //single quotes to treat as rune == single char??
 			sMutex.Unlock()
+			if len(snappyText) == len(users) {
+				admin.WriteMessage(1, "DisplayResults")
+				//Marshall the stuff
+				//Matches
+				message, err := json.Marshal(match)
+				if err != nil {
+					log.Println(err)
+				}
+				admin.WriteMessage(1, message)
+
+				//Shirts
+				message, err = json.Marshal(tshirts)
+				if err != nil {
+					log.Println(err)
+				}
+				admin.WriteMessage(1, message)
+
+				//Text
+				message, err = json.Marshal(snappyText)
+				if err != nil {
+					log.Println(err)
+				}
+				admin.WriteMessage(1, message)
+
+			}
+			continue
 		}
 
 		err = json.Unmarshal(message, &messageMap)
@@ -132,6 +161,8 @@ func echo(w http.ResponseWriter, r *http.Request) {
 					 //Send user T-Shirt
 					 k.WriteMessage(1, tshirts[tempSlice[x]])
 				 }
+
+				 textTime = true
 			 }
 		}
 
